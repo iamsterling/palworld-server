@@ -1,0 +1,31 @@
+services:
+  palworld-server:
+    # Community image that’s publicly accessible on Docker Hub
+    image: thijsvanloef/palworld-server-docker:latest  
+    container_name: palworld-server
+
+    # Palworld’s default game port
+    ports:
+      - "8211:8211/tcp"    
+      - "8211:8211/udp"
+
+    # Optional: Steam query port, RCON, etc.
+      - "27015:27015/udp"  
+
+    environment:
+      # Change these to suit your needs:
+      - SERVER_NAME=MyPalworldServer
+      - SERVER_PASSWORD=supersecret      # leave blank for open
+      - MAX_PLAYERS=16
+      - GAME_MODE=PVE                    # or PVP
+      - RCON_PORT=27020
+      - RCON_PASSWORD=anothersecret
+
+    # Persist world data, configs and logs
+    volumes:
+      - palworld-data:/palworld/data
+
+    restart: unless-stopped
+
+volumes:
+  palworld-data:
