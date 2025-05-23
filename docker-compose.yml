@@ -1,28 +1,16 @@
-version: "3.8"
-
 services:
   palworld-server:
-    image: thijsvanloef/palworld-server-docker:latest
-    container_name: palworld-server
-
+    image: ghcr.io/pocketpairjp/palserver:latest
+    # entrypoint: /pal/helper.sh
+    command:
+      - -port=8211
+      - -useperfthreads
+      - -NoAsyncLoadingThread
+      - -UseMultithreadForDS
     ports:
-      - "8211:8211/tcp"
       - "8211:8211/udp"
-      - "27015:27015/udp"
-
-    environment:
-      - SERVER_NAME=MyPalworldServer
-      - SERVER_PASSWORD=quivern0119
-      - MAX_PLAYERS=16
-      - GAME_MODE=PVE
-      - RCON_PORT=27020
-      - RCON_PASSWORD=anothersecret
-
-    # Persist everything under /pal/Saved (world saves, configs, logs)
     volumes:
-      - palworld-data:/data
+      - palworld-data:/pal/Package/Pal/Saved
 
-    restart: unless-stopped
-
-# volumes:
-#   palworld-data:
+volumes:
+  palworld-data:
