@@ -1,29 +1,45 @@
+version: "3.8"
+
 services:
+  # 1) Init service: writes your custom INI into the Saved/Config path
+  palworld-config-init:
+    image: busybox:1.35
+    command: >
+      /bin/sh -c "
+        mkdir -p /pal/Saved/Config/LinuxServer &&
+        cat <<'EOF' > /pal/Saved/Config/LinuxServer/PalWorldSettings.ini
+        [/Script/Pal.PalGameWorldSettings]
+        OptionSettings=(ServerPassword=\"quivern0119\",DeathPenalty=None)
+        EOF
+      "
+    # Mount the same volume that the game server will use for saves/config
+    volumes:
+      - palworld-data:/pal/Saved
+    restart: "no"
+
+  # 2) The actual Palworld dedicated server
   palworld-server:
-    # Community image that’s publicly accessible on Docker Hub
-    image: thijsvanloef/palworld-server-docker:latest  
+    image: thijsvanloef/palworld-server-docker:latest
     container_name: palworld-server
+    depends_on:
+      - palworld-config-init
 
-    # Palworld’s default game port
     ports:
-      - "8211:8211/tcp"    
+      - "8211:8211/tcp"
       - "8211:8211/udp"
-
-    # Optional: Steam query port, RCON, etc.
-      - "27015:27015/udp"  
+      - "27015:27015/udp"
 
     environment:
-      # Change these to suit your needs:
       - SERVER_NAME=MyPalworldServer
-      - SERVER_PASSWORD=supersecret      # leave blank for open
+      - SERVER_PASSWORD=supersecret
       - MAX_PLAYERS=16
-      - GAME_MODE=PVE                    # or PVP
+      - GAME_MODE=PVE
       - RCON_PORT=27020
       - RCON_PASSWORD=anothersecret
 
-    # Persist world data, configs and logs
+    # Persist everything under /pal/Saved (world saves, configs, logs)
     volumes:
-      - palworld-data:/palworld/data
+      - palworld-data:/pal/Saved
 
     restart: unless-stopped
 
