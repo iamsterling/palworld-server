@@ -1,28 +1,9 @@
 version: "3.8"
 
 services:
-  # 1) Init service: writes your custom INI into the Saved/Config path
-  palworld-config-init:
-    image: busybox:1.35
-    command: >
-      /bin/sh -c "
-        mkdir -p /pal/Saved/Config/LinuxServer &&
-        cat <<'EOF' > /pal/Saved/Config/LinuxServer/PalWorldSettings.ini
-        [/Script/Pal.PalGameWorldSettings]
-        OptionSettings=(ServerPassword=\"quivern0119\",DeathPenalty=None)
-        EOF
-      "
-    # Mount the same volume that the game server will use for saves/config
-    volumes:
-      - palworld-data:/pal/Saved
-    restart: "no"
-
-  # 2) The actual Palworld dedicated server
   palworld-server:
     image: thijsvanloef/palworld-server-docker:latest
     container_name: palworld-server
-    depends_on:
-      - palworld-config-init
 
     ports:
       - "8211:8211/tcp"
@@ -31,7 +12,7 @@ services:
 
     environment:
       - SERVER_NAME=MyPalworldServer
-      - SERVER_PASSWORD=supersecret
+      - SERVER_PASSWORD=quivern0119
       - MAX_PLAYERS=16
       - GAME_MODE=PVE
       - RCON_PORT=27020
@@ -39,9 +20,9 @@ services:
 
     # Persist everything under /pal/Saved (world saves, configs, logs)
     volumes:
-      - palworld-data:/pal/Saved
+      - /data/palworld:/data/palworld
 
     restart: unless-stopped
 
-volumes:
-  palworld-data:
+# volumes:
+#   palworld-data:
