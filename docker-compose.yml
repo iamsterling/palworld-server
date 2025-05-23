@@ -20,7 +20,7 @@ services:
 
     # Persist everything under /pal/Saved (world saves, configs, logs)
     volumes:
-      - /data/palworld:/data/palworld
+      - palworld-data:/data
 
     restart: unless-stopped
 
